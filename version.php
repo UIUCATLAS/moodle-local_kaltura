@@ -30,7 +30,10 @@ $plugin->component = 'local_kaltura';
 $plugin->release = 'Kaltura release 4.4.3';
 $plugin->requires = 2022041902;
 $plugin->maturity = MATURITY_STABLE;
-
+/**
+ * Removed debug code
+ * See discussion:
+ * https://github.com/kaltura/moodle_plugin/issues/378
 global $DB;
 
 $localKalturaPluginVersionRecord = $DB->get_records_select('config_plugins', "plugin = 'local_kaltura' AND name = 'version'");
@@ -60,3 +63,4 @@ if (!empty($updatedVersion)) {
         $DB->update_record('config_plugins', $record);
     }
 }
+*/
