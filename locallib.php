@@ -656,6 +656,9 @@ function local_kaltura_format_uri($uri) {
     $newuri = str_replace('https://', '', $uri);
     $newuri = str_replace('http://', '', $newuri);
     $newuri = str_replace('www.', '', $newuri);
+    if ($playerid=get_config('filter_kaltura','preferred_playerid')) {
+        $newuri = preg_replace('/playerskin\/\d+/i','/playerSkin/'.$playerid.'/',$newuri);
+    }
     $newuri = rtrim($newuri, '/');
     return $newuri;
 }
