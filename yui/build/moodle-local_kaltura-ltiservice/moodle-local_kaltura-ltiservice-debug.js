@@ -39,7 +39,11 @@ Y.extend(LTISERVICE, Y.Base, {
          * @type {Object}
          */
         init : function(params) {
-            var documentElement = window.opener ? window.opener.parent.document : window.parent.document;
+            try {
+                var documentElement = window.opener ? window.opener.parent.document : window.parent.document;
+            } catch { // SecurityError thrown if window.opener.parent is in a different domain
+                var documentElement = window.opener ? window.opener.document : window.parent.document;
+            }
             if (documentElement.getElementById('video_title')) {
                 Y.one(documentElement.getElementById('video_title')).setAttribute('value', params.title);
             }
