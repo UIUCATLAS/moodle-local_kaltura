@@ -26,10 +26,25 @@
 require_once(dirname(__FILE__).'/../../config.php');
 require_once($CFG->dirroot.'/local/kaltura/locallib.php');
 
+global $PAGE, $_POST, $_SERVER;
+
+$PAGE->set_url(new moodle_url('/local/kaltura/service.php'));
+$PAGE->set_context(context_system::instance());
+$PAGE->set_pagelayout('embedded');
+
+// When KAF POSTs back to this endpoint cross-site, SameSite=Lax causes the moodle session cookie to be dropped.
+// Re-post from the same origin so the browser attaches the session cookie on the second request.
+if (!isloggedin() && empty($_POST['repost'])) {
+    header_remove('Set-Cookie');
+    $output = $PAGE->get_renderer('mod_lti');
+    $page = new \mod_lti\output\repost_crosssite_page($_SERVER['REQUEST_URI'], $_POST);
+    echo $output->header();
+    echo $output->render($page);
+    echo $output->footer();
+    return;
+}
+
 require_login();
-
-global $PAGE;
-
 
 $url = required_param('url', PARAM_URL);
 $width = required_param('width', PARAM_INT);
@@ -89,8 +104,6 @@ $metadata->size = $size;
 
 $metadata = local_kaltura_encode_object_for_storage($metadata);
 
-$PAGE->set_url($serviceurl);
-$PAGE->set_context(context_system::instance());
 $previewltilaunchurl = new moodle_url('/local/kaltura/bsepreview_ltilaunch.php?playurl=' . urlencode($url));
 $params = array(
     'iframeurl' => urlencode($url),
@@ -109,7 +122,6 @@ if($editor == 'atto')
 else
 {
     $PAGE->requires->yui_module('moodle-local_kaltura-ltiservice', 'M.local_kaltura.init', array($params));
-    $PAGE->set_pagelayout('embedded');
 
     echo $OUTPUT->header();
     echo $OUTPUT->footer();
